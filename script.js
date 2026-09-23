@@ -1,144 +1,140 @@
-/* =====================================================
-   HOME STYLE FURNITURE MART
-   JAVASCRIPT
-===================================================== */
+// ================================
+// HOME STYLE FURNITURE MART
+// Main JavaScript
+// ================================
 
 
-/* =========================
-   MOBILE MENU
-========================= */
-
+// MOBILE MENU
 const menuBtn = document.getElementById("menuBtn");
-const mobileMenu = document.getElementById("mobileMenu");
+const navLinks = document.getElementById("navLinks");
 
+if (menuBtn && navLinks) {
 
-if (menuBtn && mobileMenu) {
+  menuBtn.addEventListener("click", () => {
+    navLinks.classList.toggle("open");
+  });
 
-    menuBtn.addEventListener("click", () => {
-
-        mobileMenu.classList.toggle("open");
-
-        if (mobileMenu.classList.contains("open")) {
-
-            menuBtn.textContent = "✕";
-
-        } else {
-
-            menuBtn.textContent = "☰";
-
-        }
-
+  // Close menu after clicking a link
+  navLinks.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => {
+      navLinks.classList.remove("open");
     });
-
-
-    const mobileLinks =
-        mobileMenu.querySelectorAll("a");
-
-
-    mobileLinks.forEach(link => {
-
-        link.addEventListener("click", () => {
-
-            mobileMenu.classList.remove("open");
-
-            menuBtn.textContent = "☰";
-
-        });
-
-    });
+  });
 
 }
 
 
-/* =========================
-   SCROLL REVEAL
-========================= */
+// NAVBAR SCROLL EFFECT
+const navbar = document.getElementById("navbar");
 
-const revealElements =
-    document.querySelectorAll(".reveal");
+function handleNavbar() {
+
+  if (!navbar) return;
+
+  if (window.scrollY > 50) {
+    navbar.classList.add("scrolled");
+  } else {
+    navbar.classList.remove("scrolled");
+  }
+
+}
+
+window.addEventListener("scroll", handleNavbar);
+handleNavbar();
 
 
-const revealObserver =
-    new IntersectionObserver(
+// SCROLL REVEAL
+const revealElements = document.querySelectorAll(".reveal");
 
-        (entries, observer) => {
+const revealObserver = new IntersectionObserver(
+  (entries, observer) => {
 
-            entries.forEach(entry => {
+    entries.forEach(entry => {
 
-                if (entry.isIntersecting) {
+      if (entry.isIntersecting) {
 
-                    entry.target.classList.add("active");
+        entry.target.classList.add("active");
 
-                    observer.unobserve(entry.target);
+        observer.unobserve(entry.target);
 
-                }
+      }
 
-            });
+    });
 
-        },
-
-        {
-            threshold: 0.12
-        }
-
-    );
+  },
+  {
+    threshold: 0.12,
+    rootMargin: "0px 0px -40px 0px"
+  }
+);
 
 
 revealElements.forEach(element => {
-
-    revealObserver.observe(element);
-
+  revealObserver.observe(element);
 });
 
 
-/* =========================
-   NAVBAR SHADOW ON SCROLL
-========================= */
-
-const navbar =
-    document.querySelector(".navbar");
-
-
-window.addEventListener("scroll", () => {
-
-    if (!navbar) return;
-
-
-    if (window.scrollY > 50) {
-
-        navbar.style.boxShadow =
-            "0 15px 45px rgba(0,0,0,.12)";
-
-    } else {
-
-        navbar.style.boxShadow =
-            "0 10px 40px rgba(0,0,0,.08)";
-
-    }
-
-});
-
-
-/* =========================
-   CLOSE MENU ON ESC
-========================= */
-
+// ESC KEY — CLOSE MOBILE MENU
 document.addEventListener("keydown", (event) => {
 
-    if (event.key === "Escape") {
+  if (event.key === "Escape") {
 
-        if (mobileMenu) {
-
-            mobileMenu.classList.remove("open");
-
-        }
-
-        if (menuBtn) {
-
-            menuBtn.textContent = "☰";
-
-        }
-
+    if (navLinks) {
+      navLinks.classList.remove("open");
     }
 
+  }
+
 });
+
+
+// SMOOTH INTERNAL LINKS
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+
+  link.addEventListener("click", function(event) {
+
+    const targetId = this.getAttribute("href");
+
+    if (!targetId || targetId === "#") return;
+
+    const target = document.querySelector(targetId);
+
+    if (!target) return;
+
+    event.preventDefault();
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+  });
+
+});
+
+
+// IMAGE ERROR HANDLING
+// If an image filename is wrong, keep the layout clean
+// instead of showing a broken-image icon.
+
+document.querySelectorAll("img").forEach(img => {
+
+  img.addEventListener("error", () => {
+
+    img.style.opacity = "0";
+
+  });
+
+});
+
+
+// REDUCED MOTION CHECK
+const prefersReducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+);
+
+if (prefersReducedMotion.matches) {
+
+  document.documentElement.style.scrollBehavior = "auto";
+
+}
