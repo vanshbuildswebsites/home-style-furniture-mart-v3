@@ -1,528 +1,294 @@
-/* ===============================
-HOME STYLE FURNITURE MART — V4
-================================ */
+/* HOME STYLE FURNITURE MART — V4 FIXED SCRIPT */
 
-/* ===============================
-MOBILE MENU
-================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  const body = document.body;
 
-const menuBtn = document.querySelector(".menu-btn");
-const navLinks = document.querySelector(".nav-links");
+  /* =========================
+     MOBILE MENU
+  ========================= */
+  const menuToggle = document.querySelector(".menu-toggle");
+  const nav = document.querySelector(".site-nav");
 
-if (menuBtn && navLinks) {
+  if (menuToggle && nav) {
+    menuToggle.addEventListener("click", () => {
+      const isOpen = nav.classList.toggle("open");
 
-menuBtn.addEventListener("click", () => {
-
-const isOpen = navLinks.classList.toggle("open");
-
-menuBtn.setAttribute(
-  "aria-expanded",
-  isOpen ? "true" : "false"
-);
-
-menuBtn.setAttribute(
-  "aria-label",
-  isOpen ? "Close menu" : "Open menu"
-);
-
-});
-
-document.querySelectorAll(".nav-links a").forEach((link) => {
-
-link.addEventListener("click", () => {
-
-  navLinks.classList.remove("open");
-
-  menuBtn.setAttribute(
-    "aria-expanded",
-    "false"
-  );
-
-  menuBtn.setAttribute(
-    "aria-label",
-    "Open menu"
-  );
-
-});
-
-});
-
-}
-
-/* ===============================
-SCROLL REVEAL
-================================ */
-
-const revealElements =
-document.querySelectorAll(".reveal");
-
-if ("IntersectionObserver" in window) {
-
-const revealObserver =
-new IntersectionObserver(
-(entries, observer) => {
-
-    entries.forEach((entry) => {
-
-      if (entry.isIntersecting) {
-
-        entry.target.classList.add("visible");
-
-        observer.unobserve(entry.target);
-
-      }
-
+      menuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      menuToggle.setAttribute(
+        "aria-label",
+        isOpen ? "Close menu" : "Open menu"
+      );
     });
 
-  },
-  {
-    threshold: 0.08,
-    rootMargin: "0px 0px -30px 0px"
-  }
-);
-
-revealElements.forEach((element) => {
-
-revealObserver.observe(element);
-
-});
-
-} else {
-
-revealElements.forEach((element) => {
-
-element.classList.add("visible");
-
-});
-
-}
-
-/* ===============================
-LIGHTBOX
-Works for:
-
-- Products
-- Decor
-- Seating
-- Showroom
-- Interior
-- Exterior
-- Gallery
-  ================================ */
-
-const lightbox =
-document.querySelector(".lightbox");
-
-const lightboxImage =
-lightbox
-? lightbox.querySelector("img")
-: null;
-
-const lightboxClose =
-document.querySelector(".lightbox-close");
-
-const imageButtons =
-document.querySelectorAll(
-".image-button, .gallery-item"
-);
-
-let lastFocusedElement = null;
-
-function openLightbox(fullImage, altText = "") {
-
-if (!lightbox || !lightboxImage || !fullImage) {
-return;
-}
-
-lastFocusedElement =
-document.activeElement;
-
-lightboxImage.src = fullImage;
-
-lightboxImage.alt =
-altText || "Furniture image preview";
-
-lightbox.classList.add("open");
-
-lightbox.setAttribute(
-"aria-hidden",
-"false"
-);
-
-document.body.style.overflow = "hidden";
-
-if (lightboxClose) {
-
-setTimeout(() => {
-  lightboxClose.focus();
-}, 50);
-
-}
-
-}
-
-imageButtons.forEach((button) => {
-
-button.addEventListener("click", () => {
-
-const fullImage =
-  button.dataset.full;
-
-
-if (!fullImage) {
-  return;
-}
-
-
-const image =
-  button.querySelector("img");
-
-
-const altText =
-  image
-    ? image.alt
-    : "";
-
-
-openLightbox(
-  fullImage,
-  altText
-);
-
-});
-
-});
-
-/* ===============================
-CLOSE LIGHTBOX
-================================ */
-
-function closeLightbox() {
-
-if (!lightbox) {
-return;
-}
-
-lightbox.classList.remove("open");
-
-lightbox.setAttribute(
-"aria-hidden",
-"true"
-);
-
-document.body.style.overflow = "";
-
-if (lightboxImage) {
-
-setTimeout(() => {
-
-  lightboxImage.src = "";
-
-}, 250);
-
-}
-
-if (
-lastFocusedElement &&
-typeof lastFocusedElement.focus === "function"
-) {
-
-lastFocusedElement.focus();
-
-}
-
-}
-
-if (lightboxClose) {
-
-lightboxClose.addEventListener(
-"click",
-closeLightbox
-);
-
-}
-
-/* ===============================
-CLOSE ON BACKDROP
-================================ */
-
-if (lightbox) {
-
-lightbox.addEventListener(
-"click",
-(event) => {
-
-  if (
-    event.target === lightbox
-  ) {
-
-    closeLightbox();
-
+    nav.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        nav.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+        menuToggle.setAttribute("aria-label", "Open menu");
+      });
+    });
   }
 
-}
+  /* =========================
+     SCROLL REVEAL
+  ========================= */
+  const revealItems = document.querySelectorAll(".reveal");
 
-);
-
-}
-
-/* ===============================
-ESC KEY
-================================ */
-
-document.addEventListener(
-"keydown",
-(event) => {
-
-if (
-  event.key === "Escape" &&
-  lightbox &&
-  lightbox.classList.contains("open")
-) {
-
-  closeLightbox();
-
-}
-
-}
-);
-
-/* ===============================
-IMAGE LOADING
-================================ */
-
-document.querySelectorAll("img").forEach(
-(image) => {
-
-/*
-  Hero loads immediately.
-  Everything else can lazy-load.
-*/
-
-if (!image.closest(".hero")) {
-
-  image.loading = "lazy";
-
-}
-
-
-image.decoding = "async";
-
-
-/*
-  If an image fails,
-  keep the layout clean.
-*/
-
-image.addEventListener(
-  "error",
-  () => {
-
-    image.style.background =
-      "#d8d1c5";
-
-    image.style.minHeight =
-      "80px";
-
-  }
-);
-
-}
-);
-
-/* ===============================
-NAVIGATION RESIZE FIX
-================================ */
-
-window.addEventListener(
-"resize",
-() => {
-
-if (
-  window.innerWidth > 1000
-) {
-
-  if (navLinks) {
-
-    navLinks.classList.remove(
-      "open"
+  if ("IntersectionObserver" in window) {
+    const revealObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.12,
+        rootMargin: "0px 0px -40px 0px",
+      }
     );
 
+    revealItems.forEach((item) => {
+      revealObserver.observe(item);
+    });
+  } else {
+    revealItems.forEach((item) => {
+      item.classList.add("visible");
+    });
   }
 
+  /* =========================
+     LIGHTBOX
+     FIXED VERSION
+  ========================= */
+  const lightbox = document.querySelector(".lightbox");
+  const lightboxImage = document.querySelector(".lightbox img");
+  const lightboxClose = document.querySelector(".lightbox-close");
 
-  if (menuBtn) {
+  const clickableImages = document.querySelectorAll(
+    ".image-button, .gallery-item"
+  );
 
-    menuBtn.setAttribute(
-      "aria-expanded",
-      "false"
-    );
+  let lastFocusedElement = null;
 
-    menuBtn.setAttribute(
-      "aria-label",
-      "Open menu"
-    );
+  function getImageSource(element) {
+    if (!element) return null;
 
-  }
+    /* First priority: data-full */
+    const fullImage = element.getAttribute("data-full");
 
-}
-
-}
-);
-
-/* ===============================
-SMOOTH INTERNAL NAVIGATION
-================================ */
-
-document
-.querySelectorAll(
-'a[href^="#"]'
-)
-.forEach((link) => {
-
-link.addEventListener(
-  "click",
-  (event) => {
-
-    const targetId =
-      link.getAttribute("href");
-
-
-    if (
-      !targetId ||
-      targetId === "#"
-    ) {
-
-      return;
-
+    if (fullImage && fullImage.trim() !== "") {
+      return fullImage.trim();
     }
 
+    /* Fallback: find image inside button */
+    const image = element.querySelector("img");
 
-    const target =
-      document.querySelector(
-        targetId
+    if (image) {
+      return (
+        image.getAttribute("src") ||
+        image.getAttribute("data-src") ||
+        null
+      );
+    }
+
+    return null;
+  }
+
+  function openLightbox(element) {
+    if (!lightbox || !lightboxImage) return;
+
+    const source = getImageSource(element);
+
+    if (!source) {
+      console.warn("Lightbox image source missing:", element);
+      return;
+    }
+
+    lastFocusedElement = element;
+
+    /* Reset old image first */
+    lightboxImage.removeAttribute("src");
+    lightboxImage.alt = "";
+
+    /* Set correct image */
+    lightboxImage.src = source;
+
+    const thumbnail = element.querySelector("img");
+
+    if (thumbnail && thumbnail.alt) {
+      lightboxImage.alt = thumbnail.alt;
+    } else {
+      lightboxImage.alt = "Home Style Furniture Mart";
+    }
+
+    lightbox.classList.add("open");
+    lightbox.setAttribute("aria-hidden", "false");
+
+    body.classList.add("lightbox-open");
+    body.style.overflow = "hidden";
+
+    /* Focus close button */
+    if (lightboxClose) {
+      setTimeout(() => {
+        lightboxClose.focus();
+      }, 50);
+    }
+  }
+
+  function closeLightbox() {
+    if (!lightbox) return;
+
+    lightbox.classList.remove("open");
+    lightbox.setAttribute("aria-hidden", "true");
+
+    body.classList.remove("lightbox-open");
+    body.style.overflow = "";
+
+    /* Remove image after closing */
+    if (lightboxImage) {
+      lightboxImage.removeAttribute("src");
+    }
+
+    /* Return focus */
+    if (
+      lastFocusedElement &&
+      typeof lastFocusedElement.focus === "function"
+    ) {
+      lastFocusedElement.focus();
+    }
+
+    lastFocusedElement = null;
+  }
+
+  /* Open image */
+  clickableImages.forEach((element) => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault();
+      openLightbox(element);
+    });
+  });
+
+  /* Close button */
+  if (lightboxClose) {
+    lightboxClose.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      closeLightbox();
+    });
+  }
+
+  /* Click outside image closes lightbox */
+  if (lightbox) {
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+  }
+
+  /* Escape key */
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && lightbox?.classList.contains("open")) {
+      closeLightbox();
+    }
+  });
+
+  /* =========================
+     IMAGE PERFORMANCE
+  ========================= */
+  const allImages = document.querySelectorAll("img");
+
+  allImages.forEach((image) => {
+    if (!image.hasAttribute("loading")) {
+      image.setAttribute("loading", "lazy");
+    }
+
+    image.setAttribute("decoding", "async");
+
+    image.addEventListener("error", () => {
+      image.classList.add("image-error");
+    });
+  });
+
+  /* Hero should load immediately */
+  const heroImage = document.querySelector(".hero img");
+
+  if (heroImage) {
+    heroImage.setAttribute("loading", "eager");
+    heroImage.setAttribute("fetchpriority", "high");
+  }
+
+  /* =========================
+     PRELOAD FULL IMAGES
+  ========================= */
+  clickableImages.forEach((element) => {
+    const source = getImageSource(element);
+
+    if (!source) return;
+
+    element.addEventListener("mouseenter", () => {
+      const preload = new Image();
+      preload.src = source;
+    });
+
+    element.addEventListener("focus", () => {
+      const preload = new Image();
+      preload.src = source;
+    });
+  });
+
+  /* =========================
+     LIGHTBOX IMAGE ERROR
+  ========================= */
+  if (lightboxImage) {
+    lightboxImage.addEventListener("error", () => {
+      console.warn(
+        "Could not load lightbox image:",
+        lightboxImage.src
       );
 
-
-    if (!target) {
-      return;
-    }
-
-
-    event.preventDefault();
-
-
-    target.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
+      lightboxImage.alt = "Image could not be loaded";
     });
-
   }
-);
 
-});
+  /* =========================
+     SMOOTH INTERNAL LINKS
+  ========================= */
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const targetId = link.getAttribute("href");
 
-/* ===============================
-LIGHTBOX IMAGE PRELOAD
-================================ */
+      if (!targetId || targetId === "#") return;
 
-imageButtons.forEach((button) => {
+      const target = document.querySelector(targetId);
 
-const fullImage =
-button.dataset.full;
+      if (target) {
+        event.preventDefault();
 
-if (!fullImage) {
-return;
-}
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    });
+  });
 
-/*
-Preload only when the user
-hovers/focuses the image.
-This keeps initial loading light.
-*/
-
-const preload = () => {
-
-const image =
-  new Image();
-
-image.src =
-  fullImage;
-
-};
-
-button.addEventListener(
-"mouseenter",
-preload,
-{ once: true }
-);
-
-button.addEventListener(
-"focus",
-preload,
-{ once: true }
-);
-
-});
-
-/* ===============================
-LIGHTBOX IMAGE ERROR
-================================ */
-
-if (lightboxImage) {
-
-lightboxImage.addEventListener(
-"error",
-() => {
-
-  lightboxImage.alt =
-    "Image could not be loaded.";
-
-}
-
-);
-
-}
-
-/* ===============================
-PREVENT PAGE JUMP FROM
-BUTTON ELEMENTS
-================================ */
-
-document
-.querySelectorAll(
-".image-button, .gallery-item"
-)
-.forEach((button) => {
-
-button.addEventListener(
-  "keydown",
-  (event) => {
-
-    if (
-      event.key === " " ||
-      event.key === "Enter"
-    ) {
-
-      /*
-        Native button behavior is
-        already handled by click.
-        This keeps keyboard interaction
-        accessible without adding
-        duplicate actions.
-      */
-
+  /* =========================
+     RESET MENU ON RESIZE
+  ========================= */
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 1000 && nav && menuToggle) {
+      nav.classList.remove("open");
+      menuToggle.setAttribute("aria-expanded", "false");
+      menuToggle.setAttribute("aria-label", "Open menu");
     }
+  });
 
-  }
-);
-
+  /* =========================
+     JS READY
+  ========================= */
+  document.documentElement.classList.add("js-ready");
 });
-
-/* ===============================
-INITIAL PAGE STATE
-================================ */
-
-document.documentElement.classList.add(
-"js-ready"
-);
