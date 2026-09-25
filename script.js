@@ -1,99 +1,180 @@
-// ================================
-// HOME STYLE FURNITURE MART
-// Main JavaScript
-// ================================
+// ===============================
+// HOME STYLE FURNITURE MART — V4
+// ===============================
 
 
+// ===============================
 // MOBILE MENU
-const menuBtn = document.getElementById("menuBtn");
-const navLinks = document.getElementById("navLinks");
+// ===============================
+
+const menuBtn = document.querySelector(".menu-btn");
+const navLinks = document.querySelector(".nav-links");
 
 if (menuBtn && navLinks) {
-
   menuBtn.addEventListener("click", () => {
-    navLinks.classList.toggle("open");
+    const isOpen = navLinks.classList.toggle("open");
+
+    menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
   });
 
-  // Close menu after clicking a link
-  navLinks.querySelectorAll("a").forEach(link => {
+  // Close menu after clicking a navigation link
+  document.querySelectorAll(".nav-links a").forEach((link) => {
     link.addEventListener("click", () => {
       navLinks.classList.remove("open");
+      menuBtn.setAttribute("aria-expanded", "false");
     });
   });
-
 }
 
 
-// NAVBAR SCROLL EFFECT
-const navbar = document.getElementById("navbar");
+// ===============================
+// SCROLL REVEAL ANIMATION
+// ===============================
 
-function handleNavbar() {
-
-  if (!navbar) return;
-
-  if (window.scrollY > 50) {
-    navbar.classList.add("scrolled");
-  } else {
-    navbar.classList.remove("scrolled");
-  }
-
-}
-
-window.addEventListener("scroll", handleNavbar);
-handleNavbar();
-
-
-// SCROLL REVEAL
 const revealElements = document.querySelectorAll(".reveal");
 
-const revealObserver = new IntersectionObserver(
-  (entries, observer) => {
+if ("IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.08
+    }
+  );
 
-    entries.forEach(entry => {
-
-      if (entry.isIntersecting) {
-
-        entry.target.classList.add("active");
-
-        observer.unobserve(entry.target);
-
-      }
-
-    });
-
-  },
-  {
-    threshold: 0.12,
-    rootMargin: "0px 0px -40px 0px"
-  }
-);
+  revealElements.forEach((element) => {
+    revealObserver.observe(element);
+  });
+} else {
+  revealElements.forEach((element) => {
+    element.classList.add("visible");
+  });
+}
 
 
-revealElements.forEach(element => {
-  revealObserver.observe(element);
+// ===============================
+// GALLERY LIGHTBOX
+// ===============================
+
+const lightbox = document.querySelector(".lightbox");
+const lightboxImage = lightbox
+  ? lightbox.querySelector("img")
+  : null;
+
+const lightboxClose = document.querySelector(".lightbox-close");
+
+const galleryItems = document.querySelectorAll(".gallery-item");
+
+galleryItems.forEach((item) => {
+  item.addEventListener("click", () => {
+    if (!lightbox || !lightboxImage) return;
+
+    const image = item.querySelector("img");
+    const fullImage = item.dataset.full;
+
+    if (!fullImage) return;
+
+    lightboxImage.src = fullImage;
+
+    if (image) {
+      lightboxImage.alt = image.alt;
+    }
+
+    lightbox.classList.add("open");
+    lightbox.setAttribute("aria-hidden", "false");
+
+    document.body.style.overflow = "hidden";
+  });
 });
 
 
-// ESC KEY — CLOSE MOBILE MENU
+// Close lightbox
+function closeLightbox() {
+  if (!lightbox) return;
+
+  lightbox.classList.remove("open");
+  lightbox.setAttribute("aria-hidden", "true");
+
+  document.body.style.overflow = "";
+}
+
+if (lightboxClose) {
+  lightboxClose.addEventListener("click", closeLightbox);
+}
+
+
+// Close when clicking outside the image
+if (lightbox) {
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) {
+      closeLightbox();
+    }
+  });
+}
+
+
+// Close with ESC key
 document.addEventListener("keydown", (event) => {
-
   if (event.key === "Escape") {
+    closeLightbox();
+  }
+});
 
+
+// ===============================
+// IMAGE LAZY LOADING
+// ===============================
+
+document.querySelectorAll("img").forEach((image) => {
+
+  // Hero image loads immediately for faster first screen
+  if (!image.closest(".hero")) {
+    image.loading = "lazy";
+  }
+
+  // If an image fails to load
+  image.addEventListener("error", () => {
+    image.style.background = "#d8d1c5";
+    image.style.minHeight = "80px";
+  });
+
+});
+
+
+// ===============================
+// PREVENT BROKEN MOBILE MENU
+// ===============================
+
+window.addEventListener("resize", () => {
+
+  if (window.innerWidth > 900) {
     if (navLinks) {
       navLinks.classList.remove("open");
     }
 
+    if (menuBtn) {
+      menuBtn.setAttribute("aria-expanded", "false");
+    }
   }
 
 });
 
 
+// ===============================
 // SMOOTH INTERNAL LINKS
-document.querySelectorAll('a[href^="#"]').forEach(link => {
+// ===============================
 
-  link.addEventListener("click", function(event) {
+document.querySelectorAll('a[href^="#"]').forEach((link) => {
 
-    const targetId = this.getAttribute("href");
+  link.addEventListener("click", (event) => {
+
+    const targetId = link.getAttribute("href");
 
     if (!targetId || targetId === "#") return;
 
@@ -111,30 +192,3 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
   });
 
 });
-
-
-// IMAGE ERROR HANDLING
-// If an image filename is wrong, keep the layout clean
-// instead of showing a broken-image icon.
-
-document.querySelectorAll("img").forEach(img => {
-
-  img.addEventListener("error", () => {
-
-    img.style.opacity = "0";
-
-  });
-
-});
-
-
-// REDUCED MOTION CHECK
-const prefersReducedMotion = window.matchMedia(
-  "(prefers-reduced-motion: reduce)"
-);
-
-if (prefersReducedMotion.matches) {
-
-  document.documentElement.style.scrollBehavior = "auto";
-
-}
